@@ -1,0 +1,56 @@
+* {
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: darkgray;
+}
+
+#icon {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background-color: greenyellow;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+}
+
+#chat {
+    width: 15rem;
+    height: 23rem;
+    border-radius: 2rem;
+    overflow: hidden;
+    background-color: white;
+}
+#banner {
+    width: calc(100% - 2.5rem);
+    background-color: greenyellow;
+    height: 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.5rem 0 1rem;
+}
+#banner p {
+    margin: 0;
+    padding: 0;
+    width: fit-content;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+#banner div {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background-color: red;
+}
+
+#send {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
