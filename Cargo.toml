@@ -18,7 +18,7 @@ axum = { version = "0.8", default-features = false, optional = true, features = 
 getrandom = { version = "0.4", features = ["wasm_js"]}
 getrandom03 = { package = "getrandom", version = "0.3", features = ["wasm_js"] }
 leptos = { version = "0.8" }
-leptos-use = { version = "0.18.3", features = ["use_websocket"] }
+leptos-use = { version = "0.18.3", features = ["storage", "use_websocket"] }
 leptos_axum = { version = "0.8", default-features = false, features = ["wasm"], optional = true }
 leptos_meta = { version = "0.8" }
 leptos_router = { version = "0.8" }
@@ -37,9 +37,11 @@ ssr = [
   "dep:worker",
   "leptos/ssr",
   "leptos_router/ssr",
+  "leptos-use/ssr",
 ]
 
 [package.metadata.leptos]
+
 wasm-validation = false
 # The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
 output-name = "chatbot"
