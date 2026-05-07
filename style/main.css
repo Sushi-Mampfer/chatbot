@@ -49,10 +49,6 @@ body {
     background-color: red;
 }
 
-.green {
-    background-color: green;
-}
-
 #messages {
     width: 100%;
     height: calc(100% - 8rem);

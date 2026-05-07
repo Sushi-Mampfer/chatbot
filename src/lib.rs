@@ -1,25 +1,30 @@
-#![cfg(feature = "ssr")]
-mod api;
 mod app;
+
+mod api;
 mod chat;
 
-use std::sync::Arc;
+#[cfg(feature = "ssr")]
+mod ssr {
+    pub use crate::api::handle_upgrade;
+    pub use crate::app::{shell, App};
 
-use axum::{routing::get, Extension, Router};
-use leptos::prelude::*;
-use leptos_axum::{generate_route_list, LeptosRoutes};
-use tower_service::Service;
+    pub use std::sync::Arc;
 
-use app::{shell, App};
+    pub use axum::{routing::get, Extension, Router};
+    pub use leptos::prelude::*;
+    pub use leptos_axum::{generate_route_list, LeptosRoutes};
+    pub use tower_service::Service;
+}
 
-use crate::api::handle_upgrade;
-
+#[cfg(feature = "ssr")]
 #[worker::event(fetch)]
 async fn fetch(
     req: worker::HttpRequest,
     env: worker::Env,
     _ctx: worker::Context,
 ) -> worker::Result<axum::http::Response<axum::body::Body>> {
+    use crate::ssr::*;
+
     let conf = get_configuration(None).unwrap();
     let leptos_options = conf.leptos_options;
     let routes = generate_route_list(App);

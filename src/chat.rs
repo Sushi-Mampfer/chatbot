@@ -1,7 +1,9 @@
+#![cfg(feature = "ssr")]
+
 use serde::{Deserialize, Serialize};
 use worker::{
-    console_debug, durable_object, DurableObject, Env, Request, Response, State,
-    WebSocketIncomingMessage, WebSocketPair,
+    durable_object, DurableObject, Env, Request, Response, State, WebSocketIncomingMessage,
+    WebSocketPair,
 };
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -58,7 +60,8 @@ impl DurableObject for Chat {
                 }]
             });
 
-        server.send(&messages.retain(|m| m.role != "system"))?;
+        messages.retain(|m| m.role != "system");
+        server.send(&messages)?;
 
         Response::from_websocket(client)
     }
@@ -78,9 +81,12 @@ impl DurableObject for Chat {
         ws: worker::WebSocket,
         message: worker::WebSocketIncomingMessage,
     ) -> worker::Result<()> {
-        let WebSocketIncomingMessage::String(msg) = message else {
+        let WebSocketIncomingMessage::String(mut msg) = message else {
             return Ok(());
         };
+        msg.remove(0);
+        msg.remove(msg.len() - 1);
+
         let ai = self.env.ai("AI")?;
 
         let mut messages: Vec<Message> = self
@@ -109,14 +115,18 @@ impl DurableObject for Chat {
             )
             .await?;
 
-        ws.send_with_str(&out.choices[0].message.content)?;
-
         messages.push(Message {
             role: "assistant".to_string(),
             content: out.choices[0].message.content.clone(),
         });
 
-        self.state.storage().put("messages", messages).await?;
+        self.state
+            .storage()
+            .put("messages", messages.clone())
+            .await?;
+
+        messages.retain(|m| m.role != "system");
+        ws.send(&messages)?;
 
         Ok(())
     }
