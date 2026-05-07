@@ -17,8 +17,11 @@ body {
 }
 
 #chat {
-    width: 15rem;
-    height: 23rem;
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    width: 23rem;
+    height: 33rem;
     border-radius: 2rem;
     overflow: hidden;
     background-color: white;
@@ -51,13 +54,16 @@ body {
 
 #messages {
     width: 100%;
-    height: calc(100% - 8rem);
+    height: calc(100% - 9rem);
     overflow: scroll;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 1rem;
 }
 
 .message {
-    width: 70%;
-    margin: 0.5rem;
+    max-width: 70%;
+    margin: 0.5rem 1rem;
     border-radius: 0.5rem;
     padding: 0.5rem;
     margin-bottom: 0;
@@ -65,17 +71,16 @@ body {
 
 .user {
     background-color: lightgray;
-    float: right;
+    align-self: end;
 }
 
 .bot {
     background-color: greenyellow;
-    float: left;
 }
 
 #inputs {
+    border-top: lightgray 1px solid;
     width: calc(100% - 2.5rem);
-    background-color: greenyellow;
     height: 4rem;
     display: flex;
     justify-content: space-between;

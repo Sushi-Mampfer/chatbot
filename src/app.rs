@@ -1,5 +1,4 @@
 use leptos::{
-    leptos_dom::logging::console_log,
     logging::debug_log,
     prelude::*,
     server::codee::string::{FromToStringCodec, JsonSerdeCodec},
@@ -62,6 +61,7 @@ pub fn App() -> impl IntoView {
 /// Renders the home page of your application.
 #[component]
 fn HomePage() -> impl IntoView {
+    let (loading, set_loading) = signal(false);
     let (messages, set_messages) = signal(Vec::new());
     let (id, set_id, remove_id) = use_local_storage::<String, FromToStringCodec>("id");
     let input = RwSignal::new("".to_string());
@@ -75,9 +75,17 @@ fn HomePage() -> impl IntoView {
     } = use_websocket::<String, Vec<Message>, JsonSerdeCodec>(url);
 
     Effect::new(move || {
+        let _ = message.get();
+        debug_log!("Why does this work");
+    });
+
+    Effect::new(move || {
         if let Some(msgs) = message.get() {
             set_messages.set(msgs);
+            set_loading.set(false);
         }
+
+        debug_log!("How often");
     });
 
     let send_message = move |_| {
@@ -89,10 +97,7 @@ fn HomePage() -> impl IntoView {
             role: "user".to_string(),
             content: input,
         });
-        msg_lock.push(Message {
-            role: "loading".to_string(),
-            content: String::new(),
-        });
+        set_loading.set(true);
     };
 
     view! {
@@ -128,21 +133,18 @@ fn HomePage() -> impl IntoView {
                                     }
                                 )
                             }>
-                                {
-                                    if msg.role == "loading" {
-                                        view! {
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis-icon lucide-ellipsis"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-                                        }.into_any()
-                                    } else {
-                                        view! {
-                                            {msg.content.clone()}
-                                         }.into_any()
-                                    }
-                                }
+                                {msg.content.clone()}
                             </div>
                         }
                     }
                 />
+                <Show
+                    when=move || loading.get()
+                >
+                    <div class="message bot">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis-icon lucide-ellipsis"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </div>
+                </Show>
             </div>
             <div id="inputs">
                 <textarea
