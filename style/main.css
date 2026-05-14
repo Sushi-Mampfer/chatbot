@@ -89,10 +89,9 @@ body {
 }
 
 #text {
-    width: 8rem;
     padding-left: 0.5rem;
     margin-left: 0.5rem;
-    border: 1px solid lightgray;
+    border: none;
     border-radius: 0.5rem;
     height: 2rem;
     resize: none;
@@ -100,14 +99,13 @@ body {
 
 #text:focus {
     outline: none;
-    border: 1px solid dimgray;
 }
 
 #send {
-    border: 2px solid dimgray;
+    border: none;
+    background-color: white;
     width: 2rem;
     height: 2rem;
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
