@@ -2,7 +2,6 @@
 name = "chatbot"
 version = "0.1.0"
 edition = "2021"
-authors = ["Sushi-Mampfer <84100259+Sushi-Mampfer@users.noreply.github.com>"]
 
 [profile.release]
 opt-level = "s"   # optimize for size in release builds
