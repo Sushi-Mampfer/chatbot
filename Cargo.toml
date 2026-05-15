@@ -15,8 +15,9 @@ crate-type = ["cdylib"]
 
 [dependencies]
 axum = { version = "0.8", default-features = false, optional = true, features = ["macros", "query"] }
-getrandom = { version = "0.4", features = ["wasm_js"]}
+getrandom = { version = "0.4.2", features = ["wasm_js"] }
 getrandom03 = { package = "getrandom", version = "0.3", features = ["wasm_js"] }
+gloo-timers = "0.4.0"
 leptos = { version = "0.8" }
 leptos-use = { version = "0.18.3", features = ["storage", "use_websocket"] }
 leptos_axum = { version = "0.8", default-features = false, features = ["wasm"], optional = true }
@@ -26,6 +27,7 @@ serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 tower-service = "0.3"
 urlencoding = "2.1.3"
+uuid = { version = "1.23.1", features = ["js", "v4"] }
 wasm-bindgen = "0.2.105"
 web-sys = { version = "0.3.98", features = ["ScrollBehavior", "ScrollToOptions"] }
 worker = { version = "0.8", features = ["http", "axum"], optional = true }

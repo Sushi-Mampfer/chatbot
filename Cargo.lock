@@ -229,6 +229,7 @@ dependencies = [
  "axum",
  "getrandom 0.3.4",
  "getrandom 0.4.2",
+ "gloo-timers 0.4.0",
  "leptos",
  "leptos-use",
  "leptos_axum",
@@ -238,6 +239,7 @@ dependencies = [
  "serde_json",
  "tower-service",
  "urlencoding",
+ "uuid",
  "wasm-bindgen",
  "web-sys",
  "worker",
@@ -737,6 +739,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "gloo-timers"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "482ce8a491a501da4cd806bd190275363d674f2845005c6ddbd5d3e1dd54495d"
+dependencies = [
+ "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "gloo-utils"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1126,7 +1138,7 @@ dependencies = [
  "cookie",
  "default-struct-builder",
  "futures-util",
- "gloo-timers",
+ "gloo-timers 0.3.0",
  "js-sys",
  "lazy_static",
  "leptos",

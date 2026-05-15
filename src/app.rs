@@ -1,3 +1,4 @@
+use gloo_timers::callback::Timeout;
 use leptos::{
     html,
     prelude::*,
@@ -12,6 +13,8 @@ use leptos_use::{
     core::ConnectionReadyState, storage::use_local_storage, use_websocket, UseWebSocketReturn,
 };
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+use wasm_bindgen::JsValue;
 use web_sys::{ScrollBehavior, ScrollToOptions};
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
@@ -65,11 +68,16 @@ fn HomePage() -> impl IntoView {
     let (loading, set_loading) = signal(false);
     let (messages, set_messages) = signal(Vec::new());
     let (id, set_id, remove_id) = use_local_storage::<String, FromToStringCodec>("id");
+    let (unfolded, set_unfolded) = signal(false);
+    let (full, set_full) = signal(false);
     let input = RwSignal::new("".to_string());
 
     let messages_container: NodeRef<html::Div> = NodeRef::new();
 
-    let url = format!("/api/chat?id={}", id.get()).leak();
+    if id.get_untracked().is_empty() {
+        set_id.set(Uuid::new_v4().to_string());
+    }
+    let url = format!("/api/chat?id={}", id.get_untracked()).leak();
     let UseWebSocketReturn {
         ready_state,
         message,
@@ -94,6 +102,9 @@ fn HomePage() -> impl IntoView {
     });
 
     let send_message = move || {
+        if loading.get_untracked() {
+            return;
+        }
         let input_val = input.get();
         if input_val.is_empty() {
             return;
@@ -122,10 +133,31 @@ fn HomePage() -> impl IntoView {
     let send_message = StoredValue::new(send_message);
 
     view! {
-        <div id="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle-icon lucide-message-circle"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg></div>
-        <div id="chat">
+        <div
+            id="bg"
+            class:full=move || full.get()
+        >
+        </div>
+        <div
+            id="icon"
+            class:hidden=move || unfolded.get()
+            on:click=move |_| {
+                set_full.set(true);
+                window().parent().unwrap().unwrap().post_message(&JsValue::from_str("open"), "*").unwrap();
+                set_unfolded.set(true);
+                Timeout::new(250, move || {
+                    set_full.set(false);
+                }).forget();
+            }
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle-icon lucide-message-circle"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>
+        </div>
+
+        <div
+            id="chat"
+            class:hidden=move || !unfolded.get()
+        >
             <div id="banner">
-                <p>BYOAT Chatbot</p>
                 <div
                     style=move || {
                         format!("background-color: {};",
@@ -138,6 +170,35 @@ fn HomePage() -> impl IntoView {
                     }
                     id="status"
                 ></div>
+                <p>BYOAT Chatbot</p>
+                <button
+                    id="clear"
+                    on:click=move |_| {
+                        remove_id();
+                        set_full.set(true);
+                        Timeout::new(250, move || {
+                            window().parent().unwrap().unwrap().post_message(&JsValue::from_str("close"), "*").unwrap();
+                            set_unfolded.set(false);
+                            set_full.set(false);
+                            window().location().reload().unwrap();
+                        }).forget();
+                    }
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+                <button
+                    id="close"
+                    on:click=move |_| {
+                        set_full.set(true);
+                        Timeout::new(250, move || {
+                            window().parent().unwrap().unwrap().post_message(&JsValue::from_str("close"), "*").unwrap();
+                            set_unfolded.set(false);
+                            set_full.set(false);
+                        }).forget();
+                    }
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
             </div>
             <div
                 node_ref=messages_container
@@ -175,14 +236,15 @@ fn HomePage() -> impl IntoView {
                     bind:value=input
                     on:keypress=move |kb_event| {
                             if kb_event.key() == "Enter".to_string() {
-                               send_message.get_value()()
+                               send_message.get_value()();
+                               kb_event.prevent_default();
                             }
                         }
                     placeholder="Message..."
                     id="text"
                 ></textarea>
                 <Show
-                    when=move || !input.get().is_empty()
+                    when=move || !input.get().is_empty() && !loading.get()
                 >
                     <button
                         on:click=move |_| send_message.get_value()()
