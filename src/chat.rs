@@ -218,7 +218,7 @@ Behavior rules:
 
         let out: AiOutput = ai
             .run(
-                "@cf/qwen/qwen3-30b-a3b-fp8",
+                "@cf/moonshotai/kimi-k2.6",
                 AiInput {
                     messages: messages.clone(),
                 },
